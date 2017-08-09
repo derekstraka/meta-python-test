@@ -4,7 +4,7 @@
 export MACHINE="${MACHINE-qemux86-64}"
 
 # What to build
-BUILD_TARGETS=`find poky/meta-openembedded/meta-python -name '*.bb' | xargs -n1 basename | grep -v systemd | cut -d '_' -f 1 | tr '\n' ' '`
+BUILD_TARGETS=`find poky/meta-openembedded/meta-python -name '*.bb' | xargs -n1 basename | grep -v systemd | grep -v networkmanager | cut -d '_' -f 1 | tr '\n' ' '`
 
 die() {
     echo "$*" >&2
