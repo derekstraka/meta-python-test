@@ -8,7 +8,7 @@ BBFILES ?= ""
 BBLAYERS ?= " \
   ##OEROOT##/meta-python-test \
   ##OEROOT##/meta \
-  ##OEROOT##/meta-yocto \
+  ##OEROOT##/meta-poky \
   ##OEROOT##/meta-yocto-bsp \
   ##OEROOT##/meta-openembedded/meta-oe \
   ##OEROOT##/meta-openembedded/meta-networking \
