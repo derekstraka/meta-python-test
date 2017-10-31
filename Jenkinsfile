@@ -28,7 +28,7 @@ for (int i = 0; i < targets.size(); i++) {
                     sh "GIT_LOCAL_REF_DIR=/srv/git-cache/ ./scripts/fetch.sh master-next"
                 }
                 stage("build glibc $machine") {
-                    sh "MACHINE=${machine} ./scripts/build.sh"
+                    sh "MACHINE=${machine} TCLIBC=glibc ./scripts/build.sh"
                 }
                 stage("build musl $machine") {
                     sh "MACHINE=${machine} TCLIBC=musl ./scripts/build.sh"
