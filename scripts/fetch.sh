@@ -15,7 +15,12 @@ POKY_URI="git://git.yoctoproject.org/poky.git"
 POKY_PATH="poky"
 POKY_REV="${POKY_REV-refs/remotes/origin/${branch}}"
 
-METAOE_URI="git://git.openembedded.org/meta-openembedded.git"
+if [ "$branch" = "master-next" ]; then
+    METAOE_URI="https://github.com/derekstraka/meta-openembedded.git"
+else
+    METAOE_URI="git://git.openembedded.org/meta-openembedded.git"
+fi
+
 METAOE_PATH="poky/meta-openembedded"
 METAOE_REV="${METAOE_REV-refs/remotes/origin/${branch}}"
 
