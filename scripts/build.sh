@@ -3,8 +3,9 @@
 # Grab the MACHINE from the environment; otherwise, set it to a sane default
 export MACHINE="${MACHINE-qemux86-64}"
 
-# What to build
-BUILD_TARGETS=`find poky/meta-openembedded/meta-python -name '*.bb' | xargs -n1 basename | grep -v systemd | grep -v networkmanager | grep -v blivet | cut -d '_' -f 1 | tr '\n' ' '`
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+. ${SCRIPT_DIR}/generate-targets
 
 die() {
     echo "$*" >&2
@@ -16,37 +17,22 @@ rm -f build/conf/local.conf || die "failed to nuke local.conf"
 
 mkdir -p artifacts
 
-./scripts/containerize.sh "bitbake ${BUILD_TARGETS} -c checkpkg && cp tmp/log/checkpkg.csv ../artifacts/python-packages-checkpkg.csv"
+${SCRIPT_DIR}/containerize.sh "bitbake ${BUILD_TARGETS} -c checkpkg && cp tmp/log/checkpkg.csv ../artifacts/python-packages-checkpkg.csv"
 
 echo "TCLIBC=\"${TCLIBC}\"" >> build/conf/local.conf
 
-./scripts/containerize.sh bitbake -k ${BUILD_TARGETS} || die "failed to build"
+${SCRIPT_DIR}/containerize.sh bitbake -k ${BUILD_TARGETS} || die "failed to build"
 
-# Find all the items that contain a BBCLASSEXTEND for native
-CLASS_EXTENDS_RECIPES=`grep -r BBCLASSEXTEND poky/meta-openembedded/meta-python/ | grep native | cut -d ":" -f1 | xargs -n1 basename | grep \.bb$ | cut -d '_' -f 1`
-CLASS_EXTENDS_INC=`grep -r BBCLASSEXTEND poky/meta-openembedded/meta-python | grep native | cut -d ":" -f1 | xargs -n1 basename | grep \.inc$ | cut -d '.' -f 1`
+${SCRIPT_DIR}/containerize.sh bitbake -k ${NATIVE_BUILD_TARGETS} || die "failed to build native targets"
 
-NATIVE_BUILD_TARGETS=
+${SCRIPT_DIR}/generate-images.sh
 
-for recipe in $CLASS_EXTENDS_RECIPES; do
-    NATIVE_BUILD_TARGETS="${NATIVE_BUILD_TARGETS} ${recipe}-native"
+IMAGE_TARGETS=
+for target in ${BUILD_TARGETS}; do
+    sed "s/<TEMPLATE_PACKAGE>/${target}/g" templates/core-image-minimal.bb.template > poky/meta/recipes-core/images/core-image-minimal-plus-${target}.bb
+    IMAGE_TARGETS="${IMAGE_TARGETS} core-image-minimal-plus-${target}"
 done
 
-for inc in $CLASS_EXTENDS_INC; do
-    # Strip off the leading 'python-'
-    token=`echo $inc | cut -d '-' -f 2-`
-    
-    py2=`find poky/meta-openembedded/meta-python -name python-${token}_\* | wc -l`
-    py3=`find poky/meta-openembedded/meta-python -name python3-${token}_\* | wc -l`
+${SCRIPT_DIR}/containerize.sh bitbake -k ${IMAGE_TARGETS} || die "failed to build image targets"
 
-    if [ "$py2" -eq "1" ]; then
-        NATIVE_BUILD_TARGETS="${NATIVE_BUILD_TARGETS} python-${token}-native"
-    fi
-
-    if [ "$py3" -eq "1" ]; then
-        NATIVE_BUILD_TARGETS="${NATIVE_BUILD_TARGETS} python3-${token}-native"
-    fi    
-
-done
-
-./scripts/containerize.sh bitbake -k ${NATIVE_BUILD_TARGETS} || die "failed to build native targets"
+${SCRIPT_DIR}/check-python-imports.sh
