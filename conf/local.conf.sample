@@ -225,6 +225,7 @@ SSTATE_MIRRORS ?= "file://.* http://build-cache.asterius.io/master/sstate-cache/
 SOURCE_MIRROR_URL ?= "http://build-cache.asterius.io/downloads/"
 INHERIT += "own-mirrors rm_work distrodata"
 
+IMAGE_FSTYPES = "tar.bz2"
 #
 # Qemu configuration
 #
