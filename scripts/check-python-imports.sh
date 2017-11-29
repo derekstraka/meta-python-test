@@ -5,6 +5,8 @@ export MACHINE="${MACHINE-qemux86-64}"
 
 LOG_FILE="import-errors-raw.txt"
 
+FILTERED_LOG_FILE="import-errors-filtered.txt"
+
 # What to build
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -49,15 +51,19 @@ EOF
 
     echo "#########################################################################################" >> ${LOG_FILE}
     echo "${image}" >> ${LOG_FILE}
+    cat ${tmp_dir}/${error_file} >> ${LOG_FILE}
 
-    ${SCRIPT_DIR}/filter_exceptions.py -f ${tmp_dir}/${error_file} -e SystemError >> ${LOG_FILE}
+    echo "#########################################################################################" >> ${FILTERED_LOG_FILE}
+    echo "${image}" >> ${FILTERED_LOG_FILE}
+    ${SCRIPT_DIR}/filter_exceptions.py -f ${tmp_dir}/${error_file} -e SystemError,ValueError,KeyError,AttributeError >> ${FILTERED_LOG_FILE}
 
-    rm -rf ${tmp_dir}
+    sudo rm -rf ${tmp_dir}
 done
 
 popd &> /dev/null
 
 mv build/tmp/deploy/images/$MACHINE/${LOG_FILE} artifacts
+mv build/tmp/deploy/images/$MACHINE/${FILTERED_LOG_FILE} artifacts
 
 exit 0
 
