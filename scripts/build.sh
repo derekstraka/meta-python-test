@@ -27,6 +27,7 @@ ${SCRIPT_DIR}/containerize.sh bitbake -k ${NATIVE_BUILD_TARGETS} || die "failed 
 
 ${SCRIPT_DIR}/generate-images.sh
 
+if [ -n "{BUILD_IMAGES}" ]; then
 IMAGE_TARGETS=
 for target in ${BUILD_TARGETS}; do
     case "${target}" in
@@ -71,3 +72,7 @@ done
 ${SCRIPT_DIR}/containerize.sh bitbake -k ${IMAGE_TARGETS} || die "failed to build image targets"
 
 ${SCRIPT_DIR}/check-python-imports.sh
+
+fi
+
+exit 0
