@@ -3,7 +3,7 @@ BUILD_TARGETS=`find poky/meta-openembedded/meta-python poky/meta/recipes-devtool
 
 # Find all the items that contain a BBCLASSEXTEND for native
 CLASS_EXTENDS_RECIPES=`grep -r BBCLASSEXTEND poky/meta-openembedded/meta-python/ poky/meta/recipes-devtools/python | grep native | cut -d ":" -f1 | xargs -n1 basename | grep \.bb$ | cut -d '_' -f 1`
-CLASS_EXTENDS_INC=`grep -r BBCLASSEXTEND poky/meta-openembedded/meta-python poky/meta/recipes-devtools/python | grep native | cut -d ":" -f1 | xargs -n1 basename | grep \.inc$ | cut -d '.' -f 1`
+CLASS_EXTENDS_INC=`grep -r BBCLASSEXTEND poky/meta-openembedded/meta-python | grep native | cut -d ":" -f1 | xargs -n1 basename | grep \.inc$ | cut -d '.' -f 1`
 
 NATIVE_BUILD_TARGETS=
 
