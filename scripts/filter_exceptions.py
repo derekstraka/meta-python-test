@@ -65,6 +65,8 @@ def print_filtered_errors(error_list, exclude_list):
     for err in unique_errs:
         if any([excl in err for excl in excludes]):
             continue
+        if "attempted relative import" in err:
+            continue
         print(err)
 
 def main(exception_file, exclude_list):
